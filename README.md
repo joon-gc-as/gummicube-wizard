@@ -1,5 +1,7 @@
 # gummicube-wizard
 
+![Wizard](static/wizard.webp)
+
 An autonomous GitHub issue-resolver bot. When an issue is assigned to the bot's GitHub
 account, it clones/uses a local checkout of the repo, hands the issue off to Claude
 (via the Anthropic API) to investigate and fix, then commits the changes and opens a

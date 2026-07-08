@@ -29,19 +29,19 @@ async function main() {
     }});
   })
 
-  // update/patch settings
-  // wizard.put("/settings", async (_req, res) => {
-  //   const anthropicSettings = await AnthropicAgent.updateSettings()
-  //   res.status(200).send({ message: 'settings', data: {
-  //     anthropic: anthropicSettings
-  //   }});
-  // })  
-
-  // check repos
-  wizard.use("/self/repos", async (_req, res) => {
+  wizard.use("/repos", async (_req, res) => {
     const repos = await GithubService.checkRepositories();
     res.status(200).send({ message: 'repos', data: repos });
   })
+  // update/patch settings
+  // wizard.put("/settings", async (_req, res) => {
+  //   const anthropicSettings = await AnthropicAgent.updateSettings()
+  // check repos
+  //   res.status(200).send({ message: 'settings', data: {
+  //     anthropic: anthropicSettings
+  //   }});
+  // })
+
 
   // Github Behaviour Webhook
   wizard.use(createNodeMiddleware(GithubWHActions, { path: '/github/webhooks'})),

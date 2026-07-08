@@ -1,6 +1,0 @@
-{
-  "model": "claude-opus-4-8",
-  "max_tokens": 16000,
-  "max_iterations": 10,
-  "summary_max_tokens": 2000
-}
