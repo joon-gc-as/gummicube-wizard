@@ -1,0 +1,30 @@
+{
+  "name": "wizard",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "src/main.ts",
+  "scripts": {
+    "dev": "node src/main.ts",
+    "setup": "node src/scripts/clone-repos.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.104.2",
+    "@octokit/rest": "^22.0.1",
+    "@octokit/webhooks": "^14.2.0",
+    "express": "^5.2.1",
+    "smee-client": "^5.0.0"
+  },
+  "devDependencies": {
+    "@octokit/types": "^16.0.0",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.9.3",
+    "dotenv": "^17.4.2",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}
