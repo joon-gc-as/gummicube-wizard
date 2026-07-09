@@ -101,9 +101,9 @@ src/
   main.ts                    Express app entrypoint
   agents/
     anthropic/
-      anthropic.ts            Claude-driven issue-resolution agent
-      settings.json            Model/agent settings
-    gemini/                   (reserved for a future Gemini-backed agent)
+      anthropic.agent.ts         Claude-driven issue-resolution agent
+      anthropic.service.ts       Model/agent config settings
+    gemini/                     (reserved for a future Gemini-backed agent)
   github/
     github.service.ts          GitHub API + git operations (clone, commit, open PR, etc.)
     github.webhook.ts          Webhook event handlers

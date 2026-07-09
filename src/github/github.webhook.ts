@@ -3,7 +3,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { GithubService } from './github.service.ts';
 
-import { AnthropicAgent } from '../agents/anthropic/anthropic.ts';
+import { AnthropicAgent } from '../agents/anthropic/anthropic.agent.ts';
 
 if (!process.env.GITHUB_WEBHOOK_SECRET) {
   throw new Error("GITHUB_WEBHOOK_SECRET environment variable is required");

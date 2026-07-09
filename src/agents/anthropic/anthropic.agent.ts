@@ -5,6 +5,7 @@ import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { GitHubIssue, ResolveIssueResult } from "../../github/github.service.ts";
 const execFileAsync = promisify(execFile);
+import { AnthropicService } from './anthropic.service.ts';
 
 if (!process.env.ANTHROPIC_API_KEY) {
   throw new Error("ANTHROPIC_API_KEY environment variable is required");
@@ -14,19 +15,6 @@ const anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 ///////////////////////////////////////////////////////////////////////////////
 //                                  settings                                 //
 ///////////////////////////////////////////////////////////////////////////////
-const MODEL = "claude-opus-4-8";
-const MAX_TOKENS = 16000;
-const SUMMARY_MAX_TOKENS = 2000; // could be lower probably
-const MAX_ITERATIONS = 10;
-const SYSTEM_PROMPT = `You are an autonomous coding agent. You are given a GitHub issue and a checked-out
-copy of the repository it belongs to, rooted at the current working directory. Investigate the
-codebase using the bash and text editor tools, make the changes needed to resolve the issue, and
-verify your work (run tests/build/lint if the repo has them) before ending your turn. Only make
-changes directly required by the issue.`;
-const SUMMARY_PROMPT = `Summarize the changes you made to resolve this issue, written for a pull
-request description. Use markdown. Describe what changed and why, and call out any follow-up
-steps (e.g. tests you couldn't run) the reviewer should be aware of. Do not include anything else
-in your response other than the summary itself.`;
 
 interface BashToolInput {
   command?: string;
@@ -46,15 +34,6 @@ interface TextEditorToolInput {
 
 export class AnthropicAgent {
   private static resolvedRepoDir = "";
-
-  public static async displaySettings() {
-    return {
-      model: MODEL,
-      maxToken: MAX_TOKENS,
-      maxIterations: MAX_ITERATIONS,
-      summaryMaxToken: SUMMARY_MAX_TOKENS,
-    }
-  }
   
   public static async resolveIssue(
     repoDir: string,
@@ -67,9 +46,10 @@ export class AnthropicAgent {
       { type: "text_editor_20250728", name: "str_replace_based_edit_tool" },
     ];
 
-    let messages: Anthropic.MessageParam[] = [
+    const messages: Anthropic.MessageParam[] = [
       {
         role: "user",
+        // DISCLAIMER: This is where the main contents of the client payload converge to 
         content: `
           Resolve GitHub issue #${issue.number} in ${issue.repository}.
           Title: ${issue.title}
@@ -78,14 +58,19 @@ export class AnthropicAgent {
       },
     ];
 
+    const {
+      model:  MODEL,
+      max_iterations: MAX_ITERATIONS,
+      max_tokens: MAX_TOKENS,
+      system_prompt: SYSTEM_PROMPT
+    } = await AnthropicService.getConfig()
+    
     let response: Anthropic.Message | undefined;
     let iterations = 0;
 
-    console.log('attempting iterations on issue...');
     while (iterations < MAX_ITERATIONS) {
       iterations++;
 
-      console.log('iteration number:', iterations)
       const stream = anthropicClient.messages.stream({
         model: MODEL,
         max_tokens: MAX_TOKENS,
@@ -93,7 +78,7 @@ export class AnthropicAgent {
         output_config: { effort: "high" },
         system: SYSTEM_PROMPT,
         tools,
-        messages,
+        messages: messages,
       });
       response = await stream.finalMessage();
 
@@ -137,6 +122,11 @@ export class AnthropicAgent {
   }
 
   private static async summarizeChanges(messages: Anthropic.MessageParam[]): Promise<string> {
+    const {
+      model:  MODEL,
+      max_tokens: SUMMARY_MAX_TOKENS,
+      summary_prompt: SUMMARY_PROMPT
+    } = await AnthropicService.getConfig()    
     const summaryResponse = await anthropicClient.messages.create({
       model: MODEL,
       max_tokens: SUMMARY_MAX_TOKENS,
