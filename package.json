@@ -6,6 +6,7 @@
   "main": "src/main.ts",
   "scripts": {
     "dev": "node src/main.ts",
+    "setup-proxy": "node src/scripts/setup-proxy.ts",
     "setup": "node src/scripts/clone-repos.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,7 +18,8 @@
     "@octokit/rest": "^22.0.1",
     "@octokit/webhooks": "^14.2.0",
     "express": "^5.2.1",
-    "smee-client": "^5.0.0"
+    "smee-client": "^5.0.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@octokit/types": "^16.0.0",
